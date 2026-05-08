@@ -1,5 +1,5 @@
 {
-  "extends": "../../packages/config/tsconfig.base.json",
+  "extends": "@surudron/config/tsconfig",
   "compilerOptions": {
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",

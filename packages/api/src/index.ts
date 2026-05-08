@@ -1,7 +1,5 @@
-import { ORPCError, os } from "@orpc/server";
+import { oc } from "@orpc/contract";
 
-import type { Context } from "./context";
-
-export const o = os.$context<Context>();
-
-export const publicProcedure = o;
+export const api = oc.errors({
+  INTERNAL_SERVER_ERROR: {},
+});

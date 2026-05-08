@@ -1,27 +1,19 @@
 {
   "name": "@surudron/api",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
+    ".": "./src/index.ts",
+    "./contract": "./src/contract/index.ts",
+    "./types": "./src/types/index.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
   "dependencies": {
-    "@orpc/client": "catalog:",
-    "@orpc/openapi": "catalog:",
-    "@orpc/server": "catalog:",
-    "@orpc/zod": "catalog:",
-    "@surudron/env": "workspace:*",
-    "dotenv": "catalog:",
+    "@orpc/contract": "catalog:",
+    "@surudron/shared": "workspace:*",
     "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@surudron/config": "workspace:*",
-    "elysia": "catalog:",
-    "typescript": "catalog:"
   }
 }

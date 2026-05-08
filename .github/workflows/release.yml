@@ -1,0 +1,47 @@
+name: Build SuruDron
+on: [push]
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Node Dependencies
+        run: bun install
+
+      - name: Build Rust Binary
+        # This builds the 'serial' or 'serial.exe'
+        run: cargo build --release
+        working-directory: apps/serial
+
+      - name: Build Web Frontend
+        # This populates ../web/dist for Electrobun to grab
+        run: bun run build
+        working-directory: apps/web
+
+      - name: Build Desktop App
+        # Using --channel stable for production optimization
+        run: bun run --filter @surudron/desktop build --channel stable
+        env:
+          # Necessary for Linux GTK/WebKit linking in headless environments
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: surudron-${{ matrix.os }}
+          path: apps/desktop/artifacts/

@@ -1,5 +1,6 @@
 {
   "name": "surudron",
+  "version": "0.0.0",
   "private": true,
   "workspaces": {
     "packages": [
@@ -7,41 +8,28 @@
       "packages/*"
     ],
     "catalog": {
-      "dotenv": "^17.2.2",
-      "zod": "^4.1.13",
-      "typescript": "^6",
-      "@types/bun": "^1.3.4",
-      "elysia": "^1.4.28",
-      "@orpc/server": "^1.13.14",
-      "@orpc/openapi": "^1.13.14",
-      "@orpc/zod": "^1.13.14",
-      "next-themes": "^0.4.6",
-      "@orpc/client": "^1.13.14",
-      "@types/react-dom": "^19.2.3"
+      "@orpc/contract": "^1.14.2",
+      "@types/bun": "^1.3.13",
+      "typescript": "^6.0.3",
+      "zod": "^4.4.3"
     }
   },
   "type": "module",
   "scripts": {
-    "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
+    "build:desktop": "bun run build:serial && bun run build:web && bun run --filter @surudron/desktop build",
+    "build:serial": "cd apps/serial && cargo build --release",
+    "build:web": "bun run --filter @surudron/web build",
+    "check": "oxlint && oxfmt --write",
     "check-types": "bun run --filter '*' check-types",
-    "dev:web": "bun run --filter web dev",
-    "dev:desktop": "bun run --filter desktop dev:hmr",
-    "build:desktop": "bun run --filter desktop build:stable",
-    "build:desktop:canary": "bun run --filter desktop build:canary",
-    "dev:server": "bun run --filter server dev",
-    "check": "oxlint && oxfmt --write"
-  },
-  "dependencies": {
-    "@surudron/env": "workspace:*",
-    "dotenv": "catalog:",
-    "zod": "catalog:"
+    "clean": "rm -rf apps/*/dist apps/serial/target",
+    "dev": "bun run --filter '*' dev",
+    "dev:server": "bun run --filter @surudron/server dev"
   },
   "devDependencies": {
     "@surudron/config": "workspace:*",
     "@types/bun": "catalog:",
-    "oxfmt": "^0.46.0",
-    "oxlint": "^1.61.0",
+    "oxfmt": "^0.48.0",
+    "oxlint": "^1.63.0",
     "typescript": "catalog:"
   },
   "packageManager": "bun@1.3.13"

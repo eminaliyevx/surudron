@@ -1,35 +1,43 @@
-import { QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
+import React from "react";
 import ReactDOM from "react-dom/client";
+import { App } from "./app";
+import "./styles.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { DroneProvider } from "./context";
 
-import Loader from "./components/loader";
-import { routeTree } from "./routeTree.gen";
-import { orpc, queryClient } from "./utils/orpc";
+// Localization imports
+import translationAz from "./locales/az/translation.json";
+import translationEn from "./locales/en/translation.json";
+import translationTr from "./locales/tr/translation.json";
 
-const router = createRouter({
-  routeTree,
-  defaultPreload: "intent",
-  scrollRestoration: true,
-  defaultPendingComponent: () => <Loader />,
-  context: { orpc, queryClient },
-  Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+i18n.use(initReactI18next).init({
+  resources: {
+    az: { translation: translationAz },
+    tr: { translation: translationTr },
+    en: { translation: translationEn },
   },
+  lng: "az",
+  fallbackLng: "az",
+  interpolation: { escapeValue: false },
 });
 
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+const queryClient = new QueryClient();
 
-const rootElement = document.getElementById("app");
-
-if (!rootElement) {
-  throw new Error("Root element not found");
-}
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<RouterProvider router={router} />);
-}
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    <DroneProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Sonner position="top-right" />
+          <App />
+        </TooltipProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </DroneProvider>
+  </React.StrictMode>
+);

@@ -1,0 +1,135 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --radius: 0.375rem;
+
+  /* Colors mapped for Tailwind utilities */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-warning: hsl(var(--warning));
+  --color-success: hsl(var(--success));
+}
+
+@layer base {
+  :root {
+    --background: 210 20% 96%;
+    --foreground: 220 20% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 14%;
+
+    --primary: 175 80% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 90%;
+    --secondary-foreground: 220 15% 30%;
+
+    --muted: 210 15% 92%;
+    --muted-foreground: 215 10% 46%;
+
+    --accent: 85 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 85%;
+    --input: 214 20% 85%;
+    --ring: 175 80% 32%;
+
+    --warning: 45 90% 50%;
+    --success: 145 60% 38%;
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 200 20% 90%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 200 20% 90%;
+
+    --popover: 220 18% 12%;
+    --popover-foreground: 200 20% 90%;
+
+    --primary: 175 80% 45%;
+    --primary-foreground: 220 20% 7%;
+
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 200 20% 80%;
+
+    --muted: 220 15% 14%;
+    --muted-foreground: 200 10% 50%;
+
+    --accent: 85 60% 50%;
+    --accent-foreground: 220 20% 7%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 15% 20%;
+    --input: 200 15% 20%;
+    --ring: 175 80% 45%;
+
+    --warning: 45 90% 50%;
+    --success: 145 60% 45%;
+  }
+
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-background text-foreground font-sans;
+  }
+
+  * {
+    border-color: theme(colors.border);
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow:
+      0 0 12px hsl(175 80% 45% / 0.3),
+      0 0 4px hsl(175 80% 45% / 0.15);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 8px hsl(175 80% 45% / 0.5);
+  }
+
+  .hud-border {
+    border: 1px solid hsl(175 80% 45% / 0.25);
+  }
+}

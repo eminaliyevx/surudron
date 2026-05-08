@@ -1,11 +1,10 @@
 {
-  "extends": "@surudron/config/tsconfig.base.json",
+  "extends": "@surudron/config/tsconfig",
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "jsx": "react-jsx"
+    }
   }
 }

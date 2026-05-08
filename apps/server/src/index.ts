@@ -1,68 +1,62 @@
-import { cors } from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
-import { onError } from "@orpc/server";
-import { RPCHandler } from "@orpc/server/fetch";
-import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
-import { createContext } from "@surudron/api/context";
-import { appRouter } from "@surudron/api/routers/index";
+import { CORSPlugin } from "@orpc/server/plugins";
+import { ZodToJsonSchemaConverter } from "@orpc/zod";
 import { env } from "@surudron/env/server";
-import { Elysia } from "elysia";
+import { NODE_ENV } from "@surudron/shared/constants";
 
-const rpcHandler = new RPCHandler(appRouter, {
-  interceptors: [
-    onError((error) => {
-      console.error(error);
-    }),
-  ],
-});
-const apiHandler = new OpenAPIHandler(appRouter, {
+import { serialManager } from "@/lib/hardware/serial-manager";
+import { router } from "@/router";
+
+const handler = new OpenAPIHandler(router, {
   plugins: [
+    new CORSPlugin(),
     new OpenAPIReferencePlugin({
       schemaConverters: [new ZodToJsonSchemaConverter()],
-    }),
-  ],
-  interceptors: [
-    onError((error) => {
-      console.error(error);
+      specGenerateOptions: {
+        info: {
+          title: "SuruDron API",
+          version: "0.0.0",
+        },
+      },
     }),
   ],
 });
 
-new Elysia()
-  .use(
-    cors({
-      origin: env.CORS_ORIGIN,
-      methods: ["GET", "POST", "OPTIONS"],
-    }),
-  )
-  .all(
-    "/rpc*",
-    async (context) => {
-      const { response } = await rpcHandler.handle(context.request, {
-        prefix: "/rpc",
-        context: await createContext({ context }),
+export const startServer = (port = env.PORT) => {
+  serialManager.start();
+
+  const server = Bun.serve({
+    port: env.NODE_ENV === NODE_ENV.production ? 0 : port,
+    async fetch(request: Request) {
+      const { matched, response } = await handler.handle(request, {
+        prefix: "/api",
+        context: {},
       });
-      return response ?? new Response("Not Found", { status: 404 });
+
+      if (matched) {
+        return response;
+      }
+
+      return new Response(undefined, { status: 302, headers: { Location: "/api" } });
     },
-    {
-      parse: "none",
-    },
-  )
-  .all(
-    "/api-reference*",
-    async (context) => {
-      const { response } = await apiHandler.handle(context.request, {
-        prefix: "/api-reference",
-        context: await createContext({ context }),
-      });
-      return response ?? new Response("Not Found", { status: 404 });
-    },
-    {
-      parse: "none",
-    },
-  )
-  .get("/", () => "OK")
-  .listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
   });
+
+  return server;
+};
+
+export { serialManager };
+
+if (import.meta.main) {
+  const server = startServer();
+
+  const cleanup = () => {
+    serialManager.stop();
+    server.stop(true);
+
+    process.exit(0);
+  };
+
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
+}

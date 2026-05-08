@@ -1,3 +1,3 @@
 {
-  "extends": "@surudron/config/tsconfig.base.json"
+  "extends": "@surudron/config/tsconfig"
 }

@@ -1,25 +1,13 @@
-import { BrowserWindow, Updater } from "electrobun/bun";
+import { startServer, serialManager } from "@surudron/server";
+import { BrowserWindow } from "electrobun/bun";
 
-const DEV_SERVER_PORT = 3001;
-const DEV_SERVER_URL = `http://localhost:${DEV_SERVER_PORT}`;
-
-// Check if the web dev server is running for HMR
-async function getMainViewUrl(): Promise<string> {
-  const channel = await Updater.localInfo.channel();
-  if (channel === "dev") {
-    try {
-      await fetch(DEV_SERVER_URL, { method: "HEAD" });
-      console.log(`HMR enabled: Using web dev server at ${DEV_SERVER_URL}`);
-      return DEV_SERVER_URL;
-    } catch {
-      console.log('Web dev server not running. Run "bun run dev:hmr" for HMR support.');
-    }
-  }
-
+const getMainViewUrl = () => {
   return "views://mainview/index.html";
-}
+};
 
-const url = await getMainViewUrl();
+const server = startServer();
+
+const url = getMainViewUrl();
 
 new BrowserWindow({
   title: "surudron",
@@ -32,4 +20,11 @@ new BrowserWindow({
   },
 });
 
-console.log("Electrobun desktop shell started.");
+process.on("exit", () => {
+  serialManager.stop();
+
+  server.stop(true);
+});
+
+process.on("SIGINT", () => process.exit(0));
+process.on("SIGTERM", () => process.exit(0));
