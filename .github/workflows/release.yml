@@ -1,22 +1,13 @@
-name: Build SuruDron
+name: Build SuruDron (Windows)
 on: [push]
 
 jobs:
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  build-windows:
+    name: Build Windows x64
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install System Dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libudev-dev libgtk-3-dev libwebkit2gtk-4.0-dev
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -25,29 +16,29 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
 
-      - name: Install Node Dependencies
+      - name: Install Dependencies
         run: bun install
 
       - name: Build Rust Binary
-        # This builds the 'serial' or 'serial.exe'
+        # Compiles the serial manager to apps/serial/target/release/serial.exe
         run: cargo build --release
         working-directory: apps/serial
 
       - name: Build Web Frontend
-        # This populates ../web/dist for Electrobun to grab
+        # Generates the production dist in apps/web/dist
         run: bun run build
         working-directory: apps/web
 
       - name: Build Desktop App
-        # Using --channel stable for production optimization
+        # Packages everything using the Electrobun production channel
         run: bun run --filter @surudron/desktop build --channel stable
-        env:
-          # Necessary for Linux GTK/WebKit linking in headless environments
-          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: surudron-${{ matrix.os }}
+          name: surudron-windows-dist
+          # Electrobun places Windows artifacts in the artifacts folder
           path: apps/desktop/artifacts/
