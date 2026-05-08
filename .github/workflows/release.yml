@@ -2,7 +2,7 @@ name: Build SuruDron (Windows)
 on: [push]
 
 env:
-  # Opt into Node 24 early to fix deprecation warnings
+  # This kills the Node 20 deprecation warnings
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2 # Updated version
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -22,6 +22,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            apps/serial/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
       - name: Install Dependencies
         run: bun install
@@ -37,10 +49,18 @@ jobs:
       - name: Build Desktop App
         run: bun run --filter @surudron/desktop build --channel stable
 
+      # DEBUG STEP: This helps us find where the files actually are if the upload fails
+      - name: List Artifacts Directory
+        run: Get-ChildItem -Path apps/desktop/artifacts -Recurse
+        shell: powershell
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: surudron-windows-dist
-          # Recursive glob ensures we find the .zip or .exe regardless of subfolders
-          path: apps/desktop/artifacts/**
+          # We use a broader wildcard and allow multiple subdirectories
+          path: |
+            apps/desktop/artifacts/**/*.zip
+            apps/desktop/artifacts/**/*.exe
+            apps/desktop/artifacts/**/*.json
           if-no-files-found: error
