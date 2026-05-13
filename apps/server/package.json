@@ -12,9 +12,9 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
-    "@orpc/openapi": "^1.14.2",
-    "@orpc/server": "^1.14.2",
-    "@orpc/zod": "^1.14.2",
+    "@orpc/openapi": "^1.14.3",
+    "@orpc/server": "^1.14.3",
+    "@orpc/zod": "^1.14.3",
     "@serialport/parser-readline": "^13.0.0",
     "@surudron/api": "workspace:*",
     "@surudron/env": "workspace:*",
@@ -27,6 +27,6 @@
     "@serialport/bindings-cpp": "^13.0.1",
     "@serialport/stream": "^13.0.0",
     "@surudron/config": "workspace:*",
-    "tsdown": "^0.21.10"
+    "tsdown": "^0.22.0"
   }
 }
