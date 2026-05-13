@@ -1,17 +1,11 @@
 import { startServer, serialManager } from "@surudron/server";
 import { BrowserWindow } from "electrobun/bun";
 
-const getMainViewUrl = () => {
-  return "views://mainview/index.html";
-};
-
 const server = startServer();
 
-const url = getMainViewUrl();
-
 new BrowserWindow({
-  title: "surudron",
-  url,
+  title: "SuruDron",
+  url: "views://mainview/index.html",
   frame: {
     width: 1280,
     height: 820,
