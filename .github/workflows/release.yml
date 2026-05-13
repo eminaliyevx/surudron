@@ -34,17 +34,19 @@ jobs:
       - name: Build Application
         run: bun run build:desktop
 
-      # NEW: Install Inno Setup using Chocolatey (pre-installed on Windows runners)
-      - name: Install Inno Setup
-        run: choco install innosetup -y
+      - name: Package Application
+        # This uses PowerShell (the default on Windows runners) to rename the launcher and zip the folder
+        run: |
+          cd apps/desktop/build/stable-win-x64/
 
-      # NEW: Compile the setup wizard
-      - name: Build Windows Installer
-        run: iscc apps/desktop/installer.iss
+          # Rename the extensionless launcher to a clickable .exe
+          Rename-Item -Path "SuruDron\bin\launcher" -NewName "SuruDron.exe"
 
-      # UPDATED: Upload the final setup.exe instead of the raw build folder
-      - name: Upload Artifacts
+          # Compress the entire SuruDron folder into a single Zip file
+          Compress-Archive -Path "SuruDron" -DestinationPath "SuruDron-Windows.zip"
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: surudron-windows-installer
-          path: apps/desktop/Output/SuruDron-Windows-Setup.exe
+          name: surudron-windows
+          path: apps/desktop/build/stable-win-x64/SuruDron-Windows.zip
