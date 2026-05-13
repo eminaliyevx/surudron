@@ -15,11 +15,11 @@ PrivilegesRequired=admin
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; 1. Copy the core Electrobun application files
+; 1. Copy the core Electrobun application files (these keep recursesubdirs and createallsubdirs because it's a whole folder)
 Source: ".\build\stable-win-x64\SuruDron\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 2. Copy your icon into the app directory so the shortcuts can use it
-Source: ".\assets\icon.ico"; DestDir: "{app}\assets"; Flags: ignoreversion createallsubdirs
+Source: ".\assets\icon.ico"; DestDir: "{app}\assets"; Flags: ignoreversion
 
 [Icons]
 ; 3. Point the shortcuts to bin\launcher.exe, but skin them with the SuruDron icon
