@@ -1,7 +1,7 @@
 [Setup]
 AppName=SuruDron
 AppVersion=1.0.0
-AppPublisher=TIAM
+AppPublisher=Emin Aliyev
 DefaultDirName={autopf}\SuruDron
 DefaultGroupName=SuruDron
 OutputDir=.\Output
@@ -15,18 +15,21 @@ PrivilegesRequired=admin
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; 1. Copy the core Electrobun application files (these keep recursesubdirs and createallsubdirs because it's a whole folder)
-Source: ".\build\stable-win-x64\SuruDron\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; 1. Copy everything EXCEPT the extensionless "launcher" file
+Source: ".\build\stable-win-x64\SuruDron\*"; DestDir: "{app}"; Excludes: "bin\launcher"; Flags: ignoreversion recursesubdirs
 
-; 2. Copy your icon into the app directory so the shortcuts can use it
+; 2. Grab that specific launcher file, put it back in the bin folder, and rename it to an actual .exe!
+Source: ".\build\stable-win-x64\SuruDron\bin\launcher"; DestDir: "{app}\bin"; DestName: "SuruDron.exe"; Flags: ignoreversion
+
+; 3. Copy your custom icon
 Source: ".\assets\icon.ico"; DestDir: "{app}\assets"; Flags: ignoreversion
 
 [Icons]
-; 3. Point the shortcuts to bin\launcher.exe, but skin them with the SuruDron icon
-Name: "{group}\SuruDron"; Filename: "{app}\bin\launcher.exe"; IconFilename: "{app}\assets\icon.ico"
+; 4. Point the shortcuts to our newly renamed SuruDron.exe
+Name: "{group}\SuruDron"; Filename: "{app}\bin\SuruDron.exe"; IconFilename: "{app}\assets\icon.ico"
 Name: "{group}\{cm:UninstallProgram,SuruDron}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\SuruDron"; Filename: "{app}\bin\launcher.exe"; IconFilename: "{app}\assets\icon.ico"; Tasks: desktopicon
+Name: "{autodesktop}\SuruDron"; Filename: "{app}\bin\SuruDron.exe"; IconFilename: "{app}\assets\icon.ico"; Tasks: desktopicon
 
 [Run]
-; 4. Launch the correct executable when the wizard finishes
-Filename: "{app}\bin\launcher.exe"; Description: "{cm:LaunchProgram,SuruDron}"; Flags: nowait postinstall skipifsilent
+; 5. Launch the renamed application when the wizard finishes
+Filename: "{app}\bin\SuruDron.exe"; Description: "{cm:LaunchProgram,SuruDron}"; Flags: nowait postinstall skipifsilent
