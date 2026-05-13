@@ -1,12 +1,12 @@
 {
   "name": "@surudron/desktop",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun run --filter @surudron/web build && electrobun build",
+    "build": "electrobun build --env=stable",
     "check-types": "tsc --noEmit",
-    "dev": "electrobun dev --watch",
-    "start": "bun run --filter @surudron/web build && WEBKIT_DISABLE_DMABUF_RENDERER=1 electrobun dev"
+    "dev": "electrobun dev --watch"
   },
   "dependencies": {
     "@surudron/env": "workspace:*",
