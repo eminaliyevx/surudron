@@ -10,7 +10,7 @@ export default {
   app: {
     name: "surudron",
     identifier: "com.surudron.desktop",
-    version: "0.0.0",
+    version: "1.0.0",
   },
   runtime: {
     exitOnLastWindowClosed: true,

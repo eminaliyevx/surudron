@@ -26,7 +26,7 @@
     },
     "apps/server": {
       "name": "@surudron/server",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "@orpc/openapi": "^1.14.3",
         "@orpc/server": "^1.14.3",
@@ -103,7 +103,7 @@
     },
     "packages/api": {
       "name": "@surudron/api",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "@orpc/contract": "catalog:",
         "@surudron/shared": "workspace:*",
@@ -112,11 +112,11 @@
     },
     "packages/config": {
       "name": "@surudron/config",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "packages/env": {
       "name": "@surudron/env",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "@surudron/shared": "workspace:*",
         "@t3-oss/env-core": "^0.13.11",
@@ -128,7 +128,7 @@
     },
     "packages/shared": {
       "name": "@surudron/shared",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "zod": "catalog:",
       },

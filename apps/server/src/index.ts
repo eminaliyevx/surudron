@@ -16,7 +16,7 @@ const handler = new OpenAPIHandler(router, {
       specGenerateOptions: {
         info: {
           title: "SuruDron API",
-          version: "0.0.0",
+          version: "1.0.0",
         },
       },
     }),
