@@ -8,7 +8,7 @@ const serialExecutablePath = `../serial/target/release/${executableName}` as con
 
 export default {
   app: {
-    name: "surudron",
+    name: "SuruDron",
     identifier: "com.surudron.desktop",
     version: "1.0.0",
   },
@@ -26,5 +26,11 @@ export default {
       [serialExecutablePath]: `bin/${executableName}`,
     },
     watchIgnore: [`${webBuildDir}/**`],
+    win: {
+      icon: "assets/icon.png",
+    },
+    linux: {
+      icon: "assets/icon.png",
+    },
   },
 } satisfies ElectrobunConfig;

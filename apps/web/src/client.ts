@@ -4,10 +4,11 @@ import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { contract } from "@surudron/api/contract";
-import { env } from "@surudron/env/web";
+
+const url = "http://localhost:3000/api" as const;
 
 const link = new OpenAPILink(contract, {
-  url: env.VITE_API_BASE_URL,
+  url,
   fetch: (request, init) =>
     globalThis.fetch(request, {
       ...init,
