@@ -14,7 +14,6 @@
     "electrobun": "^1.18.1"
   },
   "devDependencies": {
-    "@surudron/config": "workspace:*",
-    "concurrently": "^9.2.1"
+    "@surudron/config": "workspace:*"
   }
 }
