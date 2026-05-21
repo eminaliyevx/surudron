@@ -17,10 +17,7 @@ import DroneMarker from "@/components/map/markers/drone-marker";
 import FlyToMarker from "@/components/map/markers/fly-to-marker";
 import { Button } from "@/components/ui/button";
 import { CloudSun } from "lucide-react";
-import {
-  WeatherModal,
-  type WeatherData,
-} from "@/components/modals/weather-modal";
+import { WeatherModal } from "@/components/modals/weather-modal";
 
 import type { Destination, Drone } from "@/types";
 
@@ -75,65 +72,13 @@ export default function MapView({
   onMapRightClick,
   setFlyToPosition,
 }: MapViewProps) {
-  const { t } = useTranslation();
-
-  const mapRef = useRef<LeafletMap>(null);
-
+  const mapRef = useRef<LeafletMap | null>(null);
   const [paths, setPaths] = useState<Record<string, [number, number][]>>({});
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
-  const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherOpen, setWeatherOpen] = useState(false);
-
-  const loadWeather = async () => {
-    setWeatherLoading(true);
-    setWeatherError(null);
-
-    const center = mapRef.current?.getCenter();
-    if (!center) {
-      setWeatherError("Map is not ready yet. Try again in a moment.");
-      setWeatherLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current_weather=true&timezone=auto`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Unable to fetch weather data.");
-      }
-
-      const json = await response.json();
-      const currentWeather = json.current_weather;
-
-      if (!currentWeather) {
-        throw new Error("No weather data returned from Open-Meteo.");
-      }
-
-      setWeather({
-        temperature: currentWeather.temperature,
-        windspeed: currentWeather.windspeed,
-        winddirection: currentWeather.winddirection,
-        weathercode: currentWeather.weathercode,
-        time: currentWeather.time,
-        latitude: json.latitude,
-        longitude: json.longitude,
-        timezone: json.timezone,
-        elevation: json.elevation,
-      });
-    } catch (error) {
-      setWeather(null);
-      setWeatherError(
-        error instanceof Error
-          ? error.message
-          : "Unexpected error while loading weather.",
-      );
-    } finally {
-      setWeatherLoading(false);
-    }
-  };
+  const [weatherCoordinates, setWeatherCoordinates] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   useEffect(() => {
     setPaths((prev) => {
@@ -255,8 +200,11 @@ export default function MapView({
         <Button
           className="cursor-pointer rounded-md border border-slate-400 bg-white hover:bg-slate-100 dark:hover:bg-white"
           onClick={() => {
+            const center = mapRef.current?.getCenter();
+            setWeatherCoordinates(
+              center ? { lat: center.lat, lon: center.lng } : null,
+            );
             setWeatherOpen(true);
-            loadWeather();
           }}
           variant="secondary"
           size="icon"
@@ -268,10 +216,12 @@ export default function MapView({
 
       <WeatherModal
         open={weatherOpen}
-        onOpenChange={(open) => setWeatherOpen(open)}
-        weather={weather}
-        loading={weatherLoading}
-        error={weatherError}
+        onOpenChange={(open) => {
+          if (!open) {
+            setWeatherOpen(false);
+          }
+        }}
+        coordinates={weatherCoordinates}
       />
     </div>
   );

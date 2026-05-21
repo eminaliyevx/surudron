@@ -1,5 +1,5 @@
 import { LoaderCircle } from "lucide-react";
-import type { HTMLAttributes } from "react";
+import { useEffect, useState, type HTMLAttributes } from "react";
 
 import {
   Dialog,
@@ -58,19 +58,89 @@ const formatNumber = (value: number) => value.toFixed(1);
 interface WeatherModalProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  weather: WeatherData | null;
-  loading: boolean;
-  error: string | null;
+  coordinates: { lat: number; lon: number } | null;
 }
 
 export function WeatherModal({
   open,
   onOpenChange,
-  weather,
-  loading,
-  error,
+  coordinates,
 }: WeatherModalProps) {
   const { t } = useTranslation();
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let canceled = false;
+
+    if (!open) {
+      return;
+    }
+
+    if (!coordinates) {
+      setWeather(null);
+      setLoading(false);
+      setError("Unable to resolve map coordinates for weather.");
+      return;
+    }
+
+    const fetchWeather = async () => {
+      setLoading(true);
+      setError(null);
+      setWeather(null);
+
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${coordinates.lat}&longitude=${coordinates.lon}&current_weather=true&timezone=auto`,
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to fetch weather data.");
+        }
+
+        const json = await response.json();
+        const currentWeather = json.current_weather;
+
+        if (!currentWeather) {
+          throw new Error("No weather data returned from Open-Meteo.");
+        }
+
+        if (!canceled) {
+          setWeather({
+            temperature: currentWeather.temperature,
+            windspeed: currentWeather.windspeed,
+            winddirection: currentWeather.winddirection,
+            weathercode: currentWeather.weathercode,
+            time: currentWeather.time,
+            latitude: json.latitude,
+            longitude: json.longitude,
+            timezone: json.timezone,
+            elevation: json.elevation,
+          });
+        }
+      } catch (error) {
+        if (!canceled) {
+          setWeather(null);
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Unexpected error while loading weather.",
+          );
+        }
+      } finally {
+        if (!canceled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchWeather();
+
+    return () => {
+      canceled = true;
+    };
+  }, [open, coordinates]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
