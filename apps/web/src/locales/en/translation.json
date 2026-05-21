@@ -110,5 +110,16 @@
   "radius": {
     "title": "Radius (m)",
     "description": "Drones will be positioned evenly spaced around the target point at this radius (in meters)."
+  },
+  "weather": {
+    "title": "Weather Information",
+    "description": "Current weather conditions at the drone's location.",
+    "temperature": "Temperature",
+    "wind_direction": "Wind Direction",
+    "conditions": "Conditions",
+    "humidity": "Humidity: {{humidity}}%",
+    "map_center": "Map Center",
+    "wind_speed": "Wind Speed",
+    "error": "Failed to load weather data. Please try again."
   }
 }

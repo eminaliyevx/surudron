@@ -109,5 +109,16 @@
   "radius": {
     "title": "Yarıçap (m)",
     "description": "Drone’lar, hedef noktanın etrafına bu yarıçapta eşit aralıklarla konumlanacaktır."
+  },
+  "weather": {
+    "title": "Hava Durumu Bilgisi",
+    "description": "Drone’un konumundaki mevcut hava koşulları.",
+    "wind_direction": "Rüzgar Yönü",
+    "conditions": "Hava Koşulları",
+    "temperature": "Sıcaklık",
+    "humidity": "Nem: {{humidity}}%",
+    "map_center": "Harita Merkezi",
+    "wind_speed": "Rüzgar Hızı",
+    "error": "Hava verileri yüklenemedi. Lütfen tekrar deneyin."
   }
 }

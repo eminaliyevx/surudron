@@ -109,5 +109,16 @@
   "radius": {
     "title": "Radius (m)",
     "description": "Dronlar təyinat nöqtəsinin ətrafında bu radiusda bərabər məsafədə yer tutacaqlar."
+  },
+  "weather": {
+    "title": "Hava Məlumatları",
+    "description": "Dronun yerləşdiyi ərazidəki cari hava şəraiti.",
+    "conditions": "Hava Şəraiti",
+    "wind_direction": "Külək Yönü",
+    "temperature": "Temperatur",
+    "humidity": "Rütubət: {{humidity}}%",
+    "map_center": "Xəritə Mərkəzi",
+    "wind_speed": "Külək Sürəti",
+    "error": "Hava məlumatları yüklenemedi. Lütfen tekrar deneyin."
   }
 }
