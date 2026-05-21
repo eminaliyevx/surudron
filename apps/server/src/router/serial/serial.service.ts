@@ -1,6 +1,4 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
 import { EventPublisher, ORPCError } from "@orpc/server";
-import type { contract } from "@surudron/api/contract";
 import type { Inputs } from "@surudron/api/types";
 
 import { serialManager } from "@/lib/hardware/serial-manager";
@@ -8,8 +6,6 @@ import type { Copter } from "@/types";
 
 import type { DroneCommand } from "./serial.simulation";
 import { dispatchCommand, startSimulation, stopSimulation } from "./serial.simulation";
-
-export type Outputs = InferContractRouterOutputs<typeof contract>;
 
 const eventPublisher = new EventPublisher<{
   "serial-data": Copter[];

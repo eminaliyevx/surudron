@@ -1,7 +1,7 @@
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { CORSPlugin } from "@orpc/server/plugins";
-import { ZodToJsonSchemaConverter } from "@orpc/zod";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { env } from "@surudron/env/server";
 import { NODE_ENV } from "@surudron/shared/constants";
 
