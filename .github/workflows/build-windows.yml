@@ -3,12 +3,14 @@ name: Build Windows Release
 on:
   push:
     tags:
-      - "v*" # Trigger on version tags e.g., v1.0.0
-  workflow_dispatch: # Allow manual triggering from GitHub UI
+      - "v*"
+  workflow_dispatch:
 
 jobs:
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -36,11 +38,10 @@ jobs:
         uses: cargo-bins/cargo-binstall@main
 
       - name: Install Tauri CLI
-        run: cargo binstall tauri-cli@2 -y
+        run: cargo binstall tauri-cli
 
       - name: Build Tauri App
-        run: cargo tauri build
-        working-directory: ./apps/tauri
+        run: bun run build
 
       - name: Upload Windows Release
         uses: softprops/action-gh-release@v2
