@@ -32,16 +32,25 @@ jobs:
       - name: Install Frontend Dependencies
         run: bun install
 
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install Tauri CLI
+        run: cargo binstall tauri-cli@2 -y
+
       - name: Build Tauri App
-        uses: tauri-apps/tauri-action@v0
+        run: cargo tauri build
+        working-directory: ./apps/tauri
+
+      - name: Upload Windows Release
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # tauri-action automatically runs cargo tauri build
-          # which will trigger your beforeBuildCommand ("bun run build:web")
-          projectPath: "./apps/tauri"
-          tagName: ${{ github.ref_name }} # e.g. v1.0.0
-          releaseName: "Surudron ${{ github.ref_name }}"
-          releaseBody: "Download the Windows installer below."
-          releaseDraft: true
+          files: |
+            apps/tauri/target/release/bundle/nsis/*.exe
+            apps/tauri/target/release/bundle/msi/*.msi
+          name: "Surudron ${{ github.ref_name }}"
+          body: "Download the Windows installer below."
+          draft: true
           prerelease: false
