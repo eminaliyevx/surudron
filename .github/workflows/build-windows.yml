@@ -1,0 +1,52 @@
+name: Build Windows Release
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger on version tags e.g., v1.0.0
+  workflow_dispatch: # Allow manual triggering from GitHub UI
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.3.14
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "apps/tauri -> target"
+
+      - name: Install Frontend Dependencies
+        run: bun install
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # tauri-action automatically runs cargo tauri build
+          # which will trigger your beforeBuildCommand ("bun run build:web")
+          projectPath: "./apps/tauri"
+          tagName: ${{ github.ref_name }} # e.g. v1.0.0
+          releaseName: "Surudron ${{ github.ref_name }}"
+          releaseBody: "Download the Windows installer below."
+          releaseDraft: true
+          prerelease: false
