@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.tiam.surudron",
   "build": {
-    "frontendDist": "../../web/dist",
+    "frontendDist": "../web/dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "bun run dev:web",
     "beforeBuildCommand": "bun run build:web"
