@@ -1,8 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
 import { Camera, Home, MapPin, PlaneLanding, PlaneTakeoff } from "lucide-react";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { orpc } from "@/client";
 import DroneVideoStreamer from "@/components/drone-video-streamer";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,7 +79,14 @@ export function DroneSettingsModal({ drone, droneId, onClose, destinations }: Pr
   const [showCamera, setShowCamera] = useState(false);
   const [showDroneDetails, setShowDroneDetails] = useState(false);
 
-  const command = useMutation(orpc.serial.command.mutationOptions());
+  const sendCommand = async (commandBody: any) => {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      await invoke("send_command", { command: commandBody });
+    } catch (error) {
+      console.error("Failed to send command over serial:", error);
+    }
+  };
 
   return (
     <>
@@ -109,10 +114,10 @@ export function DroneSettingsModal({ drone, droneId, onClose, destinations }: Pr
                   } else if (action.value === "details") {
                     setShowDroneDetails(true);
                   } else if (action.value === "takeoff") {
-                    command.mutate({ body: { type: "takeoff", id: droneId } });
+                    sendCommand({ type: "takeoff", id: droneId });
                     onClose();
                   } else if (action.value === "land") {
-                    command.mutate({ body: { type: "land", id: droneId } });
+                    sendCommand({ type: "land", id: droneId });
                     onClose();
                   } else {
                     setShowDestinations(true);
@@ -220,13 +225,11 @@ export function DroneSettingsModal({ drone, droneId, onClose, destinations }: Pr
                   className="justify-start text-foreground hover:border-primary/40 hover:bg-muted hover:text-foreground"
                   key={dest.id}
                   onClick={() => {
-                    command.mutate({
-                      body: {
-                        type: "goto",
-                        id: droneId,
-                        lat: dest.lat,
-                        lon: dest.lon,
-                      },
+                    sendCommand({
+                      type: "goto",
+                      id: droneId,
+                      lat: dest.lat,
+                      lon: dest.lon,
                     });
                     setShowDestinations(false);
                     onClose();

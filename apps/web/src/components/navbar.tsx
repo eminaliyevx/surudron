@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGlobalContext } from "../context.tsx";
+import { useSerialPorts } from "@/hooks/use-serial-ports";
+import { invoke } from "@tauri-apps/api/core";
 
 type FormationType =
   | "point"
@@ -67,41 +69,26 @@ export function Navbar({ drones, destinations, setDestinations, setDrones }) {
   const [selectedPort, setSelectedPort] = useState<string | null>(null);
 
   const { connected, setConnected } = useGlobalContext();
-
-  const { data: activeSerialPortData } = useQuery(
-    orpc.serial.connection.queryOptions()
-  );
+  const serialPorts = useSerialPorts();
 
   useEffect(() => {
-    const connection = activeSerialPortData?.data;
-    if (!connection) {
-      return;
+    // Automatically check if a port is already connected on the backend when React loads
+    async function syncActivePort() {
+      try {
+        const activePortName = await invoke<string | null>("get_active_port");
+        
+        if (activePortName) {
+          console.log(`Backend is actively connected to: ${activePortName}`);
+          setSelectedPort(activePortName);
+          setConnected(true);
+        }
+      } catch (err) {
+        console.error("Failed to sync active port state:", err);
+      }
     }
 
-    const { isOpen, port } = connection;
-    console.log(isOpen);
-    setConnected(isOpen);
-
-    if (isOpen && port && !selectedPort) {
-      setSelectedPort(port);
-    }
-  }, [activeSerialPortData, selectedPort, setConnected]);
-
-  const { data: stream } = useQuery(
-    orpc.serial.sse.experimental_streamedOptions({
-      context: { cache: true },
-      queryFnOptions: {
-        refetchMode: "reset",
-        maxChunks: 3,
-      },
-      retry: true,
-    })
-  );
-
-  const serialPorts = stream?.[stream.length - 1]?.data ?? [];
-
-  const connect = useMutation(orpc.serial.connect.mutationOptions());
-  const disconnect = useMutation(orpc.serial.disconnect.mutationOptions());
+    syncActivePort();
+  }, [setConnected]);
 
   const toggleTheme = () => {
     setIsDark((prev) => {
@@ -109,6 +96,29 @@ export function Navbar({ drones, destinations, setDestinations, setDrones }) {
       document.documentElement.classList.toggle("dark", next);
       return next;
     });
+  };
+
+  const handleConnect = async () => {
+    if (selectedPort) {
+      try {
+        await invoke("connect_port", { portName: selectedPort, baudRate: 115200 });
+        setConnected(true);
+      } catch (err) {
+        console.error("Failed to connect via Tauri:", err);
+      }
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (selectedPort) {
+      try {
+        await invoke("disconnect_port");
+        setConnected(false);
+        setDrones([]);
+      } catch (err) {
+        console.error("Failed to disconnect via Tauri:", err);
+      }
+    }
   };
 
   return (
@@ -126,8 +136,13 @@ export function Navbar({ drones, destinations, setDestinations, setDrones }) {
             </SelectTrigger>
             <SelectContent>
               {serialPorts.map((port) => (
-                <SelectItem key={port.path} value={port.path}>
-                  {port.path}
+                <SelectItem key={port.name} value={port.name}>
+                  <span className="font-mono">{port.name}</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {typeof port.description === "string"
+                      ? port.description
+                      : port.description.Usb}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -136,13 +151,7 @@ export function Navbar({ drones, destinations, setDestinations, setDrones }) {
           {connected ? (
             <Button
               className="gap-1.5 bg-red-500 text-white hover:bg-red-600 hover:text-white"
-              onClick={() => {
-                if (selectedPort) {
-                  disconnect.mutate({});
-                  setConnected(false);
-                  setDrones([]);
-                }
-              }}
+              onClick={handleDisconnect}
               size="sm"
               variant="outline"
             >
@@ -153,17 +162,7 @@ export function Navbar({ drones, destinations, setDestinations, setDrones }) {
             <Button
               className="gap-1.5"
               disabled={!selectedPort}
-              onClick={() => {
-                if (selectedPort) {
-                  connect.mutate({
-                    body: {
-                      port: selectedPort,
-                      baud: 115_200,
-                    },
-                  });
-                  setConnected(true);
-                }
-              }}
+              onClick={handleConnect}
               size="sm"
             >
               <Usb className="h-4 w-4" />

@@ -1,6 +1,5 @@
-import { contract } from "@surudron/api/contract";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import MapView from "@/components/map/map-view";
 import { Navbar } from "@/components/navbar";
@@ -8,7 +7,6 @@ import { TelemetryTable } from "@/components/telemetry-table";
 import { useGlobalContext } from "@/context";
 import type { Destination, Drone } from "@/types";
 
-import { orpc } from "./client";
 export function App() {
   const [drones, setDrones] = useState<Drone[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -16,33 +14,31 @@ export function App() {
 
   const { connected } = useGlobalContext();
 
-  // STREAM FROM THE SERIAL PORT
-  // const { data: stream } = useQuery(
-  //   orpc.serial.telemetry.experimental_streamedOptions({
-  //     context: { cache: true },
-  //     queryFnOptions: {
-  //       refetchMode: "reset",
-  //       maxChunks: 3,
-  //     },
-  //     retry: true,
-  //     enabled: connected,
-  //   }),
-  // );
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
 
-  // STREAM FROM ARDUPILOT
-  const ardupilotQuery = useQuery(
-    orpc.serial.telemetry.experimental_liveOptions({
-      context: { cache: true },
-      queryFnOptions: {
-        refetchMode: "reset",
-        maxChunks: 1,
-      },
-      retry: true,
-      enabled: connected,
-    }),
-  );
+    async function setupListener() {
+      if (!connected) {
+        setDrones([]);
+        return;
+      }
 
-  const { data: ardupilotStream } = ardupilotQuery;
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        unlisten = await listen<Drone[]>("serial-data", (event) => {
+          setDrones(event.payload);
+        });
+      } catch (err) {
+        console.error("Failed to setup serial listener:", err);
+      }
+    }
+
+    setupListener();
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [connected]);
 
   const handleAddDestination = ({ lat, lng }: { lat: number; lng: number }) => {
     setDestinations((prev) => [
@@ -72,14 +68,14 @@ export function App() {
     <div className="flex h-screen flex-col bg-background">
       <Navbar
         destinations={destinations}
-        drones={ardupilotStream ? ardupilotStream.data : []}
+        drones={drones}
         setDestinations={setDestinations}
         setDrones={setDrones}
       />
       <div className="flex flex-1 flex-col gap-3 overflow-hidden p-3">
         <MapView
           destinations={destinations}
-          drones={ardupilotStream ? ardupilotStream.data : []}
+          drones={drones}
           flyToPosition={flyToPosition}
           onMapRightClick={handleAddDestination}
           setFlyToPosition={setFlyToPosition}
@@ -87,7 +83,7 @@ export function App() {
         <div className="overflow-auto">
           <TelemetryTable
             destinations={destinations}
-            drones={ardupilotStream ? ardupilotStream.data : []}
+            drones={drones}
             onFlyToDestination={handleFlyToDestination}
             onFlyToDrone={handleFlyToDrone}
             setDestinations={setDestinations}

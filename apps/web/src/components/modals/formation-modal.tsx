@@ -1,7 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { orpc } from "@/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -42,7 +40,14 @@ export function FormationModal({
   >(null);
   const [radius, setRadius] = useState([50]);
 
-  const command = useMutation(orpc.serial.command.mutationOptions());
+  const sendCommand = async (commandBody: any) => {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      await invoke("send_command", { command: commandBody });
+    } catch (error) {
+      console.error("Failed to send command over serial:", error);
+    }
+  };
 
   useEffect(() => {
     setSelectedDroneIds(new Set());
@@ -112,13 +117,11 @@ export function FormationModal({
     selectedIds.forEach((droneId, idx) => {
       const [lat, lon] = positions[idx];
 
-      command.mutate({
-        body: {
-          type: "goto",
-          id: droneId,
-          lat,
-          lon,
-        },
+      sendCommand({
+        type: "goto",
+        id: droneId,
+        lat,
+        lon,
       });
     });
   };

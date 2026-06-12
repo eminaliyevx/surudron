@@ -6,5 +6,9 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "oxc.configPath": "./oxlint.config.ts",
-  "oxc.fmt.configPath": "./oxfmt.config.ts"
+  "oxc.fmt.configPath": "./oxfmt.config.ts",
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "rust-analyzer.linkedProjects": ["apps/tauri/Cargo.toml"]
 }

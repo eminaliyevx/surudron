@@ -16,14 +16,13 @@
   },
   "type": "module",
   "scripts": {
-    "build:desktop": "bun run build:serial && bun run build:web && bun run --filter @surudron/desktop build",
-    "build:serial": "cd apps/serial && cargo build --release",
+    "build": "cargo tauri build",
     "build:web": "bun run --filter @surudron/web build",
     "check": "oxlint && oxfmt --write",
     "check-types": "bun run --filter '*' check-types",
     "clean": "rm -rf apps/*/dist apps/serial/target",
-    "dev": "bun run --filter '*' dev",
-    "dev:server": "bun run --filter @surudron/server dev"
+    "dev": "cargo tauri dev",
+    "dev:web": "bun run --filter @surudron/web dev"
   },
   "devDependencies": {
     "@surudron/config": "workspace:*",
