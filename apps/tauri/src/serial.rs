@@ -232,6 +232,9 @@ pub async fn connect_port(
                 Err(error) if error.kind() == std::io::ErrorKind::TimedOut => {
                     continue;
                 }
+                Err(error) if error.kind() == std::io::ErrorKind::InvalidData => {
+                    continue;
+                }
                 Err(error) => {
                     error!("Error reading from serial port: {error}");
 

@@ -53,5 +53,3 @@ jobs:
             apps/tauri/target/release/bundle/msi/*.msi
           name: "Surudron ${{ github.ref_name }}"
           body: "Download the Windows installer below."
-          draft: true
-          prerelease: false
